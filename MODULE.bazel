@@ -1,0 +1,103 @@
+"""
+A Bazelmod-ified version of LLVM
+"""
+module(
+    name = "llvm-project-bazel",
+    version = "19.1.7",
+)
+
+# # Fetch LLVM as a repository.
+http_archive = use_repo_rule("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+http_archive(
+    name = "llvm-raw",
+    urls = [
+        "https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-19.1.7.tar.gz",
+    ],
+    strip_prefix = "llvm-project-llvmorg-19.1.7",
+    build_file_content = "# empty",
+)
+
+# A bunch of LLVM dependencies go here.
+
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
+bazel_dep(name = "platforms", version = "0.0.11")
+bazel_dep(name = "rules_cc", version = "0.1.1")
+bazel_dep(name = "apple_support", version = "1.18.1", repo_name = "build_bazel_apple_support")
+bazel_dep(name = "rules_python", version = "1.2.0-rc1")
+bazel_dep(name = "rules_foreign_cc", version = "0.14.0")
+
+http_archive(
+    name = "llvm_zlib",
+    build_file = "@llvm-raw//utils/bazel/third_party_build:zlib-ng.BUILD",
+    sha256 = "e36bb346c00472a1f9ff2a0a4643e590a254be6379da7cddd9daeb9a7f296731",
+    strip_prefix = "zlib-ng-2.0.7",
+    urls = [
+        "https://github.com/zlib-ng/zlib-ng/archive/refs/tags/2.0.7.zip",
+    ],
+)
+
+http_archive(
+    name = "llvm_zstd",
+    build_file = "@llvm-raw//utils/bazel/third_party_build:zstd.BUILD",
+    sha256 = "7c42d56fac126929a6a85dbc73ff1db2411d04f104fae9bdea51305663a83fd0",
+    strip_prefix = "zstd-1.5.2",
+    urls = [
+        "https://github.com/facebook/zstd/releases/download/v1.5.2/zstd-1.5.2.tar.gz",
+    ],
+)
+
+http_archive(
+    name = "pybind11",
+    build_file = "@llvm-raw//utils/bazel/third_party_build:pybind.BUILD",
+    sha256 = "201966a61dc826f1b1879a24a3317a1ec9214a918c8eb035be2f30c3e9cfbdcb",
+    strip_prefix = "pybind11-2.10.3",
+    url = "https://github.com/pybind/pybind11/archive/v2.10.3.zip",
+)
+
+http_archive(
+    name = "pfm",
+    build_file = "@llvm-raw//utils/bazel/third_party_build:pfm.BUILD",
+    sha256 = "d18b97764c755528c1051d376e33545d0eb60c6ebf85680436813fa5b04cc3d1",
+    strip_prefix = "libpfm-4.13.0",
+    urls = ["https://versaweb.dl.sourceforge.net/project/perfmon2/libpfm4/libpfm-4.13.0.tar.gz"],
+)
+
+# Replace the llvm-raw rule with a bazel_dep
+bazel_dep(name = "nanobind", version = "2.4.0")
+# http_archive(
+#     name = "nanobind",
+#     build_file = "@llvm-raw//utils/bazel/third_party_build:nanobind.BUILD",
+#     sha256 = "bb35deaed7efac5029ed1e33880a415638352f757d49207a8e6013fefb6c49a7",
+#     strip_prefix = "nanobind-2.4.0",
+#     url = "https://github.com/wjakob/nanobind/archive/refs/tags/v2.4.0.tar.gz",
+# )
+
+http_archive(
+    name = "robin_map",
+    build_file = "@llvm-raw//utils/bazel/third_party_build:robin_map.BUILD",
+    sha256 = "a8424ad3b0affd4c57ed26f0f3d8a29604f0e1f2ef2089f497f614b1c94c7236",
+    strip_prefix = "robin-map-1.3.0",
+    url = "https://github.com/Tessil/robin-map/archive/refs/tags/v1.3.0.tar.gz",
+)
+
+http_archive(
+    name = "gmp",
+    build_file = "@llvm-raw//utils/bazel/third_party_build:gmp.BUILD",
+    sha256 = "fd4829912cddd12f84181c3451cc752be224643e87fac497b69edddadc49b4f2",
+    strip_prefix = "gmp-6.2.1",
+    urls = [
+        "https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz",
+        "https://ftp.gnu.org/gnu/gmp/gmp-6.2.1.tar.xz",
+    ],
+)
+
+http_archive(
+    name = "mpfr",
+    build_file = "@llvm-raw//utils/bazel/third_party_build:mpfr.BUILD",
+    sha256 = "9cbed5d0af0d9ed5e9f8dd013e17838eb15e1db9a6ae0d371d55d35f93a782a7",
+    strip_prefix = "mpfr-4.1.1",
+    urls = ["https://www.mpfr.org/mpfr-4.1.1/mpfr-4.1.1.tar.gz"],
+)
+
+llvm_configure = use_repo_rule("@llvm-raw//utils/bazel:configure.bzl", "llvm_configure")
+llvm_configure(name = "llvm-project")
